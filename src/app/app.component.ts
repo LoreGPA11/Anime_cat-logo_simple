@@ -1,10 +1,10 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { HttpClient } from '@angular/common/http'; // <--- Para conectar con el Backend
+import { HttpClient } from '@angular/common/http';
 
 export interface Anime {
-  id?: number; // Agregamos el ID opcional (la base de datos lo genera)
+  id?: number;
   nombre: string;
   anioInicio: number | null;
   anioTermino: number | null;
@@ -19,88 +19,72 @@ export interface Anime {
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.css']
 })
+// 1. Agregamos "implements OnInit" aquí
 export class AppComponent implements OnInit {
   title = 'El Catálogo de Anime de todos';
-  
-  // Inyectamos el cliente HTTP
   http = inject(HttpClient);
-
-  // ⚠️ IMPORTANTE: Aquí debes pegar la URL que te dio Render al crear el "Web Service" (Backend)
-  // Ejemplo: 'https://anime-backend-xyz.onrender.com/animes'
-  apiUrl = 'https://anime-catalogo-simple-backend.onrender.com/animes'; 
+  
+  // ¡OJO! Asegúrate de que esta URL sea la correcta de tu Backend en Render
+  apiUrl = 'https://TU-BACKEND-AQUI.onrender.com/animes'; 
 
   listaAnime: Anime[] = [];
   
-  // Variables para controlar el formulario y la edición
+  // 2. Nueva variable para saber si estamos cargando
+  cargando: boolean = true; 
+
   nuevoAnime: Anime = {
-    nombre: '',
-    anioInicio: null,
-    anioTermino: null,
-    volumenes: null,
-    comentarios: ''
+    nombre: '', anioInicio: null, anioTermino: null, volumenes: null, comentarios: ''
   };
 
-  editandoId: number | null = null; // Si esto tiene un número, estamos editando
+  editandoId: number | null = null;
 
-  // Al iniciar la app, cargamos los datos de la nube
+  // 3. ESTA ES LA FUNCIÓN CLAVE QUE TE FALTABA
+  // Angular ejecuta esto automáticamente al inicio
   ngOnInit() {
     this.cargarAnimes();
   }
 
-  // --- LEER (GET) ---
   cargarAnimes() {
+    this.cargando = true; // Empieza a cargar
     this.http.get<Anime[]>(this.apiUrl).subscribe({
       next: (data) => {
         this.listaAnime = data;
-        console.log('Datos cargados:', data);
+        this.cargando = false; // Terminó de cargar
       },
-      error: (e) => console.error('Error cargando animes:', e)
+      error: (e) => {
+        console.error(e);
+        this.cargando = false; // Terminó (aunque sea con error)
+      }
     });
   }
 
-  // --- GUARDAR O ACTUALIZAR (POST / PUT) ---
   guardarAnime() {
     if (!this.nuevoAnime.nombre) return alert("Nombre obligatorio");
 
     if (this.editandoId) {
-      // MODO EDICIÓN: Actualizamos el existente
       this.http.put(`${this.apiUrl}/${this.editandoId}`, this.nuevoAnime)
-        .subscribe(() => {
-          this.cargarAnimes(); // Recargar lista
-          this.resetForm();    // Limpiar formulario
-        });
+        .subscribe(() => { this.cargarAnimes(); this.resetForm(); });
     } else {
-      // MODO CREACIÓN: Creamos uno nuevo
       this.http.post(this.apiUrl, this.nuevoAnime)
-        .subscribe(() => {
-          this.cargarAnimes(); // Recargar lista
-          this.resetForm();    // Limpiar formulario
-        });
+        .subscribe(() => { this.cargarAnimes(); this.resetForm(); });
     }
   }
 
-  // --- ELIMINAR (DELETE) ---
   eliminar(id: number | undefined) {
     if (!id) return;
-    if(confirm('¿Seguro que quieres borrar este anime?')) {
-      this.http.delete(`${this.apiUrl}/${id}`).subscribe(() => {
-        this.cargarAnimes(); // Recargar lista
-      });
+    if(confirm('¿Borrar?')) {
+      this.http.delete(`${this.apiUrl}/${id}`).subscribe(() => this.cargarAnimes());
     }
   }
 
-  // --- PREPARAR PARA EDITAR ---
   cargarParaEditar(anime: Anime) {
     this.editandoId = anime.id || null;
-    this.nuevoAnime = { ...anime }; // Copiamos los datos al formulario
-    window.scrollTo({ top: 0, behavior: 'smooth' }); // Subir al formulario
+    this.nuevoAnime = { ...anime };
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
-  // --- LIMPIAR FORMULARIO ---
   resetForm() {
     this.editandoId = null;
-    this.nuevoAnime = {
-      nombre: '', anioInicio: null, anioTermino: null, volumenes: null, comentarios: ''
-    };
+    this.nuevoAnime = { nombre: '', anioInicio: null, anioTermino: null, volumenes: null, comentarios: '' };
   }
 }

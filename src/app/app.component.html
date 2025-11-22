@@ -73,7 +73,13 @@
         </div>
       </div>
 
-      <p *ngIf="listaAnime.length === 0">No hay animes en tu lista aún (o la base de datos está cargando).</p>
+      <p *ngIf="cargando" style="text-align: center; color: #00c897;">
+      ⌛ Cargando datos desde la nube...
+      </p>
+
+      <p *ngIf="!cargando && listaAnime.length === 0" style="text-align: center;">
+      No hay animes en tu lista aún.
+      </p>
     </div>
   </section>
 
