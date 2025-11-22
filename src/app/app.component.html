@@ -72,14 +72,11 @@
 
         </div>
       </div>
-
-      <p *ngIf="cargando" style="text-align: center; color: #00c897;">
+      
+      <p *ngIf="listaAnime.length" style="text-align: center; color: #00c897;">
       ⌛ Cargando datos desde la nube...
       </p>
-
-      <p *ngIf="!cargando && listaAnime.length === 0" style="text-align: center;">
-      No hay animes en tu lista aún.
-      </p>
+    
     </div>
   </section>
 
