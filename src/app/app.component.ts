@@ -27,7 +27,7 @@ export class AppComponent implements OnInit {
 
   // ⚠️ IMPORTANTE: Aquí debes pegar la URL que te dio Render al crear el "Web Service" (Backend)
   // Ejemplo: 'https://anime-backend-xyz.onrender.com/animes'
-  apiUrl = 'TU_URL_DEL_BACKEND_AQUI/animes'; 
+  apiUrl = 'https://anime-catalogo-simple-backend.onrender.com/animes'; 
 
   listaAnime: Anime[] = [];
   
