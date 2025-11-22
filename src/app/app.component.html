@@ -1,11 +1,12 @@
 <div class="main-container">
 
   <header class="app-header">
-    <h1> {{ title }}</h1>
+    <h1>🎬 {{ title }}</h1>
   </header>
 
   <section class="form-section">
-    <h2>Agregar Nuevo Anime</h2>
+    <h2>{{ editandoId ? 'Editar Anime' : 'Agregar Nuevo Anime' }}</h2>
+    
     <div class="form-container">
       <div class="form-group">
         <label for="nombre">Nombre del Anime:</label>
@@ -33,7 +34,16 @@
         <textarea id="comentarios" rows="3" [(ngModel)]="nuevoAnime.comentarios" placeholder="Tus opiniones..."></textarea>
       </div>
 
-      <button class="btn-agregar" (click)="agregarAnime()">Agregar al Catálogo</button>
+      <button class="btn-agregar" 
+              [style.background-color]="editandoId ? '#f47521' : ''" 
+              (click)="guardarAnime()">
+        {{ editandoId ? 'Actualizar Anime' : 'Agregar al Catálogo' }}
+      </button>
+
+      <button *ngIf="editandoId" class="btn-cancelar" (click)="resetForm()">
+        Cancelar Edición
+      </button>
+
     </div>
   </section>
 
@@ -54,10 +64,16 @@
             <p><strong>Vols/Eps:</strong> {{ anime.volumenes || 'N/A' }}</p>
           </div>
           <p class="card-comment" *ngIf="anime.comentarios">"{{ anime.comentarios }}"</p>
+          
+          <div class="card-actions">
+            <button class="btn-action btn-edit" (click)="cargarParaEditar(anime)">Editar</button>
+            <button class="btn-action btn-delete" (click)="eliminar(anime.id)">Eliminar</button>
+          </div>
+
         </div>
       </div>
 
-      <p *ngIf="listaAnime.length === 0">No hay animes en tu lista aún.</p>
+      <p *ngIf="listaAnime.length === 0">No hay animes en tu lista aún (o la base de datos está cargando).</p>
     </div>
   </section>
 
